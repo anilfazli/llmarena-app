@@ -26,6 +26,10 @@ const gameResult = document.getElementById('game-result');
 const resultText = document.getElementById('result-text');
 const leaderboardBody = document.getElementById('leaderboard-body');
 const btnResetLb = document.getElementById('btn-reset-lb');
+const thinkingWhite = document.getElementById('thinking-white');
+const thinkingBlack = document.getElementById('thinking-black');
+const thinkingWhiteName = document.getElementById('thinking-white-name');
+const thinkingBlackName = document.getElementById('thinking-black-name');
 
 // --- Initialize Game Controller & Leaderboard ---
 const game = new GameController();
@@ -110,6 +114,14 @@ btnFight.addEventListener('click', () => {
   blackSelect.disabled = true;
 
   game.start();
+
+  // Set thinking panel names
+  const wModel = MODELS.find(m => m.id === whiteSelect.value);
+  const bModel = MODELS.find(m => m.id === blackSelect.value);
+  thinkingWhiteName.textContent = wModel?.name || 'White';
+  thinkingBlackName.textContent = bModel?.name || 'Black';
+  thinkingWhite.textContent = '🤔 Thinking...';
+  thinkingBlack.textContent = 'Waiting for turn...';
 });
 
 // --- Stop Button ---
@@ -141,6 +153,10 @@ btnNew.addEventListener('click', () => {
   whiteStatus.className = 'fighter-status';
   blackStatus.textContent = 'Waiting';
   blackStatus.className = 'fighter-status';
+  thinkingWhite.textContent = 'Waiting for game to start...';
+  thinkingBlack.textContent = 'Waiting for game to start...';
+  thinkingWhiteName.textContent = 'White';
+  thinkingBlackName.textContent = 'Black';
 });
 
 // --- Game Callbacks ---
@@ -203,6 +219,24 @@ game.onThinking = (turn, modelName) => {
     whiteStatus.className = 'fighter-status';
   }
   currentTurn.textContent = turn === 'w' ? 'White' : 'Black';
+};
+
+// Move Response (reasoning/thinking)
+game.onMoveResponse = (turn, model, response) => {
+  const el = turn === 'w' ? thinkingWhite : thinkingBlack;
+  const reasoning = response.reasoning;
+  const content = typeof response.content === 'string' ? response.content : '';
+
+  if (reasoning) {
+    el.textContent = reasoning;
+  } else if (content) {
+    el.textContent = content;
+  } else {
+    el.textContent = `Played: ${response.move || '(no response)'}`;
+  }
+
+  // Auto-scroll to bottom so user can follow the thinking
+  el.scrollTop = el.scrollHeight;
 };
 
 // Game Over

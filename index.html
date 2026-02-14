@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="LLM Arena — Watch AI models battle each other in chess. Select your fighters and let the gladiator games begin!" />
+  <meta name="description"
+    content="LLM Arena — Watch AI models battle each other in chess. Select your fighters and let the gladiator games begin!" />
   <title>⚔️ LLM Arena — AI Chess Battle</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>" />
 </head>
+
 <body>
   <div id="app">
     <!-- Header -->
@@ -70,7 +76,7 @@
       </div>
     </section>
 
-    <!-- Main Arena -->
+    <!-- Main Arena: Board + AI Thinking side by side -->
     <main class="arena-main">
       <!-- Chessboard -->
       <div class="board-container">
@@ -81,68 +87,86 @@
         </div>
       </div>
 
-      <!-- Side Panel -->
-      <aside class="side-panel">
-        <!-- Leaderboard -->
-        <div class="panel-section leaderboard-panel">
-          <h3>🏆 Leaderboard</h3>
-          <table class="leaderboard-table" id="leaderboard-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Model</th>
-                <th>W</th>
-                <th>L</th>
-                <th>D</th>
-                <th>Win%</th>
-              </tr>
-            </thead>
-            <tbody id="leaderboard-body">
-              <tr><td colspan="6" class="lb-empty">No games yet</td></tr>
-            </tbody>
-          </table>
-          <button id="btn-reset-lb" class="btn-reset-lb" title="Reset leaderboard">🗑️ Reset</button>
+      <!-- AI Thinking Panel (right of board) -->
+      <aside class="thinking-panel">
+        <h3>🧠 AI Thinking</h3>
+        <div class="thinking-bubble thinking-white">
+          <div class="thinking-label">♔ <span id="thinking-white-name">White</span></div>
+          <div class="thinking-content" id="thinking-white">Waiting for game to start...</div>
         </div>
-
-        <!-- Game Info -->
-        <div class="panel-section game-info">
-          <h3>⚡ Game Info</h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Move</span>
-              <span class="info-value" id="move-count">0</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Turn</span>
-              <span class="info-value" id="current-turn">—</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Status</span>
-              <span class="info-value" id="game-status">Idle</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Move History -->
-        <div class="panel-section move-history">
-          <h3>📜 Move History</h3>
-          <div class="move-list-header">
-            <span>#</span>
-            <span>White</span>
-            <span>Black</span>
-          </div>
-          <div class="move-list" id="move-list"></div>
-        </div>
-
-        <!-- Game Log -->
-        <div class="panel-section game-log">
-          <h3>💬 Game Log</h3>
-          <div class="log-entries" id="game-log"></div>
+        <div class="thinking-bubble thinking-black">
+          <div class="thinking-label">♚ <span id="thinking-black-name">Black</span></div>
+          <div class="thinking-content" id="thinking-black">Waiting for game to start...</div>
         </div>
       </aside>
     </main>
+
+    <!-- Info Strip: Game Info + Move History + Game Log -->
+    <section class="info-strip">
+      <!-- Game Info -->
+      <div class="panel-section game-info">
+        <h3>⚡ Game Info</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Move</span>
+            <span class="info-value" id="move-count">0</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Turn</span>
+            <span class="info-value" id="current-turn">—</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Status</span>
+            <span class="info-value" id="game-status">Idle</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Move History -->
+      <div class="panel-section move-history">
+        <h3>📜 Move History</h3>
+        <div class="move-list-header">
+          <span>#</span>
+          <span>White</span>
+          <span>Black</span>
+        </div>
+        <div class="move-list" id="move-list"></div>
+      </div>
+
+      <!-- Game Log -->
+      <div class="panel-section game-log">
+        <h3>💬 Game Log</h3>
+        <div class="log-entries" id="game-log"></div>
+      </div>
+    </section>
+
+    <!-- Leaderboard -->
+    <section class="leaderboard-strip">
+      <div class="panel-section leaderboard-panel">
+        <h3>🏆 Leaderboard</h3>
+        <table class="leaderboard-table" id="leaderboard-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Model</th>
+              <th>W</th>
+              <th>L</th>
+              <th>D</th>
+              <th>Win%</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body">
+            <tr>
+              <td colspan="6" class="lb-empty">No games yet</td>
+            </tr>
+          </tbody>
+        </table>
+        <button id="btn-reset-lb" class="btn-reset-lb" title="Reset leaderboard">🗑️ Reset</button>
+      </div>
+    </section>
   </div>
 
   <script type="module" src="/src/main.js"></script>
 </body>
+
 </html>

@@ -4,7 +4,7 @@
  */
 
 const API_BASE = 'https://openrouter.ai/api/v1';
-const API_KEY = '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';
+const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 
 /**
  * Available models — curated list requested by user
@@ -49,7 +49,7 @@ function buildChessPrompt(color, fen, legalMoves, moveHistory) {
 Current position (FEN): ${fen}
 Legal moves available: ${legalMoves.join(', ')}${historyStr}
 
-Respond with ONLY your chosen move in standard algebraic notation (SAN). No explanation, no extra text, just the move. Example: e4`;
+Respond with ONLY your chosen move in standard algebraic notation (SAN). No explanation, no extra text, just the move.`;
 }
 
 /**
@@ -129,6 +129,8 @@ export async function requestMove(modelId, color, fen, legalMoves, moveHistory) 
     return {
         move: rawContent,
         raw: rawContent,
+        reasoning: choice?.message?.reasoning || '',
+        content: choice?.message?.content || '',
         debugKeys: choice
             ? `finish=${choice.finish_reason}, contentType=${typeof choice.message?.content}, hasReasoning=${!!choice.message?.reasoning}`
             : 'no-choices',

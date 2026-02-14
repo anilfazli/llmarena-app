@@ -27,6 +27,7 @@ export class GameController {
         this.onLog = null;
         this.onStatusChange = null;
         this.onThinking = null;
+        this.onMoveResponse = null;
 
         // Initial board render
         this.board.update(this.engine.getBoard());
@@ -100,6 +101,9 @@ export class GameController {
                     this._log('info', `${model.icon} ${model.name} is thinking... (attempt ${attempt})`);
 
                     const response = await requestMove(model.id, turn, fen, legalMoves, history);
+
+                    // Notify UI of the response (including reasoning)
+                    this.onMoveResponse?.(turn, model, response);
 
                     this._log('info', `${model.icon} ${model.name} responded: "${response.raw}" [keys: ${response.debugKeys}]`);
 
