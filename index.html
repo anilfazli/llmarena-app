@@ -152,17 +152,28 @@
               <th>W</th>
               <th>L</th>
               <th>D</th>
+              <th title="Wins as White">♔W</th>
+              <th title="Wins as Black">♚W</th>
               <th>Win%</th>
             </tr>
           </thead>
           <tbody id="leaderboard-body">
             <tr>
-              <td colspan="6" class="lb-empty">No games yet</td>
+              <td colspan="8" class="lb-empty">No games yet</td>
             </tr>
           </tbody>
         </table>
-        <button id="btn-reset-lb" class="btn-reset-lb" title="Reset leaderboard">🗑️ Reset</button>
       </div>
+
+      <!-- Match History -->
+      <div class="panel-section match-history-panel">
+        <h3>📋 Match History</h3>
+        <div class="match-history" id="match-history">
+          <div class="lb-empty">No matches played yet</div>
+        </div>
+      </div>
+
+      <button id="btn-reset-lb" class="btn-reset-lb" title="Reset leaderboard">🗑️ Reset</button>
     </section>
   </div>
 

@@ -19,12 +19,14 @@ export class Leaderboard {
      * @param {'white'|'black'|'draw'} params.winner
      * @param {string} params.reason - e.g. "checkmate", "forfeit", "stalemate"
      * @param {number} params.moves - Number of moves played
+     * @param {string[]} [params.moveHistory] - Array of SAN moves played
      */
-    recordGame({ white, black, whiteId, blackId, winner, reason, moves }) {
+    recordGame({ white, black, whiteId, blackId, winner, reason, moves, moveHistory }) {
         const game = {
             id: Date.now(),
             white, black, whiteId, blackId,
             winner, reason, moves,
+            moveHistory: moveHistory || [],
             timestamp: new Date().toISOString(),
         };
 
@@ -53,11 +55,26 @@ export class Leaderboard {
 
     /**
      * Get leaderboard sorted by wins, then win rate
+     * Includes winsAsWhite and winsAsBlack calculated from game history
      */
     getStandings() {
+        // Calculate color-based stats from game history
+        const colorStats = {};
+        for (const game of this.data.games) {
+            if (!colorStats[game.whiteId]) colorStats[game.whiteId] = { winsAsWhite: 0, winsAsBlack: 0 };
+            if (!colorStats[game.blackId]) colorStats[game.blackId] = { winsAsWhite: 0, winsAsBlack: 0 };
+            if (game.winner === 'white') {
+                colorStats[game.whiteId].winsAsWhite++;
+            } else if (game.winner === 'black') {
+                colorStats[game.blackId].winsAsBlack++;
+            }
+        }
+
         return Object.values(this.data.models)
             .map(m => ({
                 ...m,
+                winsAsWhite: colorStats[m.id]?.winsAsWhite || 0,
+                winsAsBlack: colorStats[m.id]?.winsAsBlack || 0,
                 winRate: m.games > 0 ? ((m.wins / m.games) * 100).toFixed(0) : '0',
             }))
             .sort((a, b) => {
@@ -67,7 +84,37 @@ export class Leaderboard {
     }
 
     /**
-     * Get recent game history
+     * Get match history — detailed game-by-game results
+     */
+    getMatchHistory(limit = 20) {
+        return [...this.data.games].reverse().slice(0, limit).map(g => {
+            const whiteName = (g.white || '').replace(/\s*\(.*\)/, '');
+            const blackName = (g.black || '').replace(/\s*\(.*\)/, '');
+            let result, winnerName;
+            if (g.winner === 'white') {
+                result = '1-0';
+                winnerName = whiteName;
+            } else if (g.winner === 'black') {
+                result = '0-1';
+                winnerName = blackName;
+            } else {
+                result = '½-½';
+                winnerName = 'Draw';
+            }
+            return {
+                ...g,
+                whiteName,
+                blackName,
+                result,
+                winnerName,
+                reason: g.reason || '',
+                moves: g.moves || 0,
+            };
+        });
+    }
+
+    /**
+     * Get recent game history (raw)
      */
     getRecentGames(limit = 10) {
         return [...this.data.games].reverse().slice(0, limit);

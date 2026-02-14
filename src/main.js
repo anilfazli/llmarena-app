@@ -25,6 +25,7 @@ const blackStatus = document.getElementById('black-status');
 const gameResult = document.getElementById('game-result');
 const resultText = document.getElementById('result-text');
 const leaderboardBody = document.getElementById('leaderboard-body');
+const matchHistoryEl = document.getElementById('match-history');
 const btnResetLb = document.getElementById('btn-reset-lb');
 const thinkingWhite = document.getElementById('thinking-white');
 const thinkingBlack = document.getElementById('thinking-black');
@@ -39,22 +40,53 @@ const leaderboard = new Leaderboard();
 function renderLeaderboard() {
   const standings = leaderboard.getStandings();
   if (standings.length === 0) {
-    leaderboardBody.innerHTML = '<tr><td colspan="6" class="lb-empty">No games yet</td></tr>';
+    leaderboardBody.innerHTML = '<tr><td colspan="8" class="lb-empty">No games yet</td></tr>';
+    matchHistoryEl.innerHTML = '<div class="lb-empty">No matches played yet</div>';
     return;
   }
   leaderboardBody.innerHTML = standings.map((m, i) => {
     const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
     const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`;
-    // Shorten model name for display
-    const shortName = m.name.replace(/\s*\(.*\)/, '').substring(0, 12);
+    const shortName = m.name.replace(/\s*\(.*\)/, '').substring(0, 14);
     return `<tr>
             <td class="lb-rank ${rankClass}">${medal}</td>
             <td title="${m.name}">${shortName}</td>
             <td class="lb-wins">${m.wins}</td>
             <td class="lb-losses">${m.losses}</td>
             <td class="lb-draws">${m.draws}</td>
+            <td class="lb-color-w" title="Wins as White">♔${m.winsAsWhite}</td>
+            <td class="lb-color-b" title="Wins as Black">♚${m.winsAsBlack}</td>
             <td class="lb-winrate">${m.winRate}%</td>
         </tr>`;
+  }).join('');
+
+  // Render match history
+  const matches = leaderboard.getMatchHistory();
+  if (matches.length === 0) {
+    matchHistoryEl.innerHTML = '<div class="lb-empty">No matches played yet</div>';
+    return;
+  }
+  matchHistoryEl.innerHTML = matches.map((g, i) => {
+    const resultClass = g.winner === 'white' ? 'result-white' : g.winner === 'black' ? 'result-black' : 'result-draw';
+    const movesStr = (g.moveHistory || []).length > 0
+      ? g.moveHistory.map((m, idx) => idx % 2 === 0 ? `${Math.floor(idx / 2) + 1}. ${m}` : m).join(' ')
+      : `${g.moves} moves`;
+    const hasExpand = (g.moveHistory || []).length > 0;
+    return `<div class="match-card" data-idx="${i}">
+      <div class="match-summary" ${hasExpand ? 'onclick="this.parentElement.classList.toggle(\'expanded\')"' : ''}>
+        <span class="match-players">
+          <span class="match-white" title="White">♔ ${g.whiteName}</span>
+          <span class="match-result ${resultClass}">${g.result}</span>
+          <span class="match-black" title="Black">♚ ${g.blackName}</span>
+        </span>
+        <span class="match-meta">
+          <span class="match-reason">${g.reason}</span>
+          <span class="match-moves">${g.moves} moves</span>
+          ${hasExpand ? '<span class="match-expand-icon">▶</span>' : ''}
+        </span>
+      </div>
+      ${hasExpand ? `<div class="match-detail"><div class="match-pgn">${movesStr}</div></div>` : ''}
+    </div>`;
   }).join('');
 }
 
@@ -255,6 +287,7 @@ game.onGameOver = (result) => {
 
   // Record to leaderboard
   if (result.winner || result.draw) {
+    const history = game.engine.getHistory();
     leaderboard.recordGame({
       white: game.whiteModel.name,
       black: game.blackModel.name,
@@ -262,7 +295,8 @@ game.onGameOver = (result) => {
       blackId: game.blackModel.id,
       winner: result.draw ? 'draw' : result.winner,
       reason: result.reason,
-      moves: game.engine.getHistory().length,
+      moves: history.length,
+      moveHistory: history.map(h => h.san || h),
     });
     renderLeaderboard();
   }
