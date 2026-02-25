@@ -17,7 +17,7 @@ export class GameController {
         this.state = 'IDLE'; // IDLE | PLAYING | GAME_OVER
         this.whiteModel = null;
         this.blackModel = null;
-        this.delay = 1000;
+        this.delay = 500;
         this.abortController = null;
         this.consecutiveFailures = { w: 0, b: 0 };
 
